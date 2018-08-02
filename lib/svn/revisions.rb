@@ -14,6 +14,7 @@ module Svn #:nodoc:
 
     attr_reader :num
     attr_reader :repo
+    attr_reader :pool
 
     def initialize( ptr, repo, pool )
       super( ptr )
@@ -57,6 +58,13 @@ module Svn #:nodoc:
           :svn_fs_revision_proplist,
           [ :out_pointer, :fs, :revnum, :pool ],
           :error
+
+      # begin_txn
+      attach_function :begin_txn,
+          :svn_fs_begin_txn,
+          [ :out_pointer, :fs, :revnum, :pool ],
+          :error
+
     end
 
     # use the C module for all bound methods
@@ -65,6 +73,15 @@ module Svn #:nodoc:
     # gets the numeric identifier for this revision
     bind :revnum
     private :revnum
+
+    def transaction_root 
+      out = FFI::MemoryPointer.new( :pointer )
+      Error.check_and_raise(
+        C.begin_txn(out, repo.fs, num, pool)
+      )
+      # TransactionRoot.new(out.read_pointer, self)
+      TransactionRoot.new(out.read_pointer, self)
+    end
 
     # returns the revision property +name+
     bind( :prop,

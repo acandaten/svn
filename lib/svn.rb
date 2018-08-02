@@ -14,6 +14,7 @@ module Svn
   autoload :Log, 'svn/logs'
   autoload :Repo, 'svn/repos'
   autoload :Root, 'svn/roots'
+  autoload :TransactionRoot, 'svn/transaction_roots'
   autoload :Revision, 'svn/revisions'
   autoload :Diff, 'svn/diffs'
 

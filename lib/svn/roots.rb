@@ -72,6 +72,12 @@ module Svn #:nodoc:
           [ :out_pointer, :root, :path, :pool ],
           :error
 
+      #check_path
+      attach_function :check_path,
+          :svn_fs_check_path,
+          [ :out_pointer, :root, :path, :pool ],
+          :error
+
       # changes
       attach_function :changes,
           :svn_fs_paths_changed2,
@@ -156,6 +162,13 @@ module Svn #:nodoc:
         :validate => Error.return_check,
         &add_pool
 
+    def check_path(path)
+      rev_no = FFI::MemoryPointer.new( :int, 1 )
+      Error.check_and_raise(
+        C.check_path(rev_no, self, path, pool)
+      )
+      rev_no.read_array_of_int(1)[0]
+    end
   end
 
 end

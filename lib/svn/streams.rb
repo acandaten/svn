@@ -15,10 +15,14 @@ module Svn
         return stream
       end
 
+      def empty( pool=RootPool )
+        stream = new( C.empty( pool ) )
+        return stream
+      end
+
       def release( ptr )
-        Error.check_and_raise(
-            C.close( ptr )
-          )
+        # puts "What: " + ptr.inspect
+        # Error.check_and_raise(C.close( ptr ))
       end
     end
 
@@ -30,6 +34,8 @@ module Svn
       typedef CError.by_ref, :error
       typedef Pool, :pool
       typedef Stream, :stream
+      typedef :string, :content
+
       typedef :size_t, :apr_size
 
       callback :read_function, [:pointer, :pointer, :pointer], :error
@@ -39,6 +45,9 @@ module Svn
       attach_function :create,
           :svn_stream_create,
           [:pointer, :pool], :pointer
+      attach_function :empty,
+          :svn_stream_empty,
+          [:pool], :pointer
       attach_function :set_read,
           :svn_stream_set_read,
           [:stream, :read_function], :void
@@ -94,6 +103,10 @@ module Svn
           :svn_stream_read,
           [ :stream, :buffer_out, :in_out_len ],
           :error
+      attach_function :write,
+          :svn_stream_write,
+          [ :stream, :content, :in_out_len ],
+          :error
     end
 
     def read( size=8192 )
@@ -114,6 +127,15 @@ module Svn
       @read_buf.read_bytes( @in_out_len.read_ulong )
     end
 
+    def write(buf)
+      buf = buf.to_s
+      in_out_len = FFI::MemoryPointer.new( :size_t )
+      in_out_len.write_ulong( buf.size )
+      Error.check_and_raise(
+          C.write( self, buf, in_out_len )
+      )
+    end
+
     # reads the stream contents into a String object
     def read_all
       content = String.new
@@ -123,6 +145,12 @@ module Svn
       content
     end
     alias_method :to_s, :read_all
+
+    def close
+      Error.check_and_raise(
+          C.close( self)
+        )
+    end
 
     # reads the entire stream and creates a CountedString from the contents
     #

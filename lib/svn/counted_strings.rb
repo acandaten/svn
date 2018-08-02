@@ -15,6 +15,7 @@ module Svn #:nodoc:
 
     # returns a new ruby String with the CountedString's contents.
     def to_s
+      return nil if null?
       self[:data].read_string( self[:length] )
     end
 

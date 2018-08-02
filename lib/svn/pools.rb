@@ -20,6 +20,10 @@ module Svn #:nodoc:
       end
     end
 
+    def create_child_pool
+      Pool.create(self)
+    end
+
     module C
       extend FFI::Library
       ffi_lib ['libapr-1', 'libapr-1.so.0']
