@@ -1,14 +1,13 @@
 #!/usr/bin/env ruby
 #-------------------------------------------------------------------
-#  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/contaxc/apps/subversion/lib
-
+#  ensure SVN libs in LD_LIBRARY_PATH
 #--------------------------------------------------------------------
 $LOAD_PATH << File.expand_path(File.dirname(__FILE__) + "/../lib")
 %w{svn}.each {|l| require l} #Load libraries
 
-repo = Svn::Repo.open('/home/contaxc/repos.svn/qvasdoc')
+repo = Svn::Repo.open('/samba/ivase/lavetdba/repos.svn/qvasdoc')
 
-# puts repo.public_methods.sort
+file_interest ="/trunk/DocumentLibrary/Manuals/ManualsRegister.docx" 
 
 
 puts repo.youngest.num #public_methods.sort
@@ -20,28 +19,26 @@ puts r.props.class
 puts r.props.inspect
 puts "revision #{r.to_i}, by #{r.author} (on #{r.timestamp.strftime('%Y-%m-%d %H:%M')}) Log: #{r.log}"
 
-# r.changes.each_pair { |path, changes| puts path }
+r.changes.each_pair { |path, changes| puts path }
 
-#File.open("ManualsRegister.doc", "wb") {|fd| fd.write r.file_content_stream("/trunk/DocumentLibrary/Manuals/ManualsRegister.doc").to_counted_string }
-#File.open("ManualsRegister.doc", "wb") {|fd| fd.write r.file_content_stream("/trunk/DocumentLibrary/Manuals/ManualsRegister.doc").to_s }
-File.open("ManualsRegister.doc", "wb") {|fd| fd.write r.file_content("/trunk/DocumentLibrary/Manuals/ManualsRegister.doc").read }
+File.open("ManualsRegister.docx", "wb") {|fd| fd.write r.file_content(file_interest).read }
 
 puts "\n== HISTORY =="
-repo.history("/trunk/DocumentLibrary/Manuals/ManualsRegister.doc").each{|h| puts h.inspect}
+repo.history(file_interest).each{|h| puts h.inspect}
 
 puts "\n== HISTORY with options =="
 tm = Time.now
-repo.history("/trunk/DocumentLibrary/Manuals/ManualsRegister.doc", limit: 1, end_rev: 0, start_rev: repo.youngest).each{|h| puts h.inspect}
+repo.history(file_interest).each{|h| puts h.inspect}
 tm = Time.now - tm
 puts "timing: %.5f" % tm
 
 puts "\n== PROPERTIES =="
-puts r.props_for("/trunk/DocumentLibrary/Manuals/ManualsRegister.doc").inspect
+puts r.props_for(file_interest).inspect
 
 
 # tx_root = r.transaction_root
 # # puts tx_root
-# tx_root.change_prop_for( "/trunk/DocumentLibrary/Manuals/ManualsRegister.doc", "svn:mime-type", "application/octet-stream")
+# tx_root.change_prop_for( "/trunk/DocumentLibrary/Manuals/ManualsRegister.docx", "svn:mime-type", "application/octet-stream")
 
 # # puts "svn:log=" + tx_root.txn_prop( "svn:log").to_s
 

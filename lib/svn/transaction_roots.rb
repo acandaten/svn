@@ -37,7 +37,7 @@ module Svn #:nodoc:
       typedef :string, :name
       typedef :string, :value
       typedef Repo::FileSystem, :fs
-      typedef CountedString, :counted_string
+      typedef CountedString.by_ref, :counted_string
 
       attach_function :change_node_prop,
           :svn_fs_change_node_prop,
@@ -115,7 +115,7 @@ module Svn #:nodoc:
     #   c.to_s
     # end
     bind( :txn_prop,
-        :returning => CountedString,
+         :returning => CountedString.by_ref,
         :before_return => :to_s,
         :validate => Error.return_check
       ) { |out, this, name| [ out, this, name, revision.pool ] }

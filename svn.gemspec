@@ -3,10 +3,10 @@ require 'rubygems'
 Gem::Specification.new do |s|
 	s.name = 'svn'
 	s.summary = 'Ruby bindings for subversion (SVN) based on FFI'
-	s.version = '0.3.0'
-	s.author = 'Ryan Blue'
+	s.version = '0.3.1'
+	s.author = 'Adrian Candaten'
 	s.email = 'rdblue@gmail.com'
-	s.homepage = 'http://github.com/codefoundry/svn'
+	s.homepage = 'http://github.com/acandaten/svn'
 	s.files = Dir['lib/**/*.rb']
 	s.test_files = Dir['spec/**/*.rb']
   # commented out at loading ffi directly.	s.add_dependency 'ffi', '~> 1.0'

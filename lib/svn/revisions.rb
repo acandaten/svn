@@ -42,7 +42,7 @@ module Svn #:nodoc:
       typedef :long, :revnum
       typedef :string, :name
       typedef Repo::FileSystem, :fs
-      typedef CountedString, :counted_string
+      typedef CountedString.by_ref, :counted_string
 
       attach_function :revnum,
           :svn_fs_revision_root_revision,
@@ -85,7 +85,7 @@ module Svn #:nodoc:
 
     # returns the revision property +name+
     bind( :prop,
-        :returning => CountedString,
+         :returning => CountedString.by_ref,
         :before_return => :to_s,
         :validate => Error.return_check
       ) { |out, this, name| [ out, repo.fs, num, name, pool ] }

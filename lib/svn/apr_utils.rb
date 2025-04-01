@@ -212,7 +212,7 @@ module Svn #:nodoc:
         create( type, rb_arr.size ).copy_from( rb_arr )
       end
 
-      def release
+      def release(ptr)
         # memory will be released with the allocation pool
       end
     end

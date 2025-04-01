@@ -1,13 +1,21 @@
 #!/usr/bin/env ruby
 # Test reading and writing a wiki entry
 #-------------------------------------------------------------------
-#  export LD_LIBRARY_PATH=/home/contaxc/apps/subversion/lib:$LD_LIBRARY_PATH
+#  ensure SVN libs in LD_LIBRARY_PATH
 #--------------------------------------------------------------------
 $LOAD_PATH << File.expand_path(File.dirname(__FILE__) + "/../lib")
 %w{svn}.each {|l| require l} #Load libraries
 
-Svn::Repo.create("/home/contaxc/repos/test2")
-exit
+repo_dir = ENV['HOME'] + '/repos.svn/test2'
+
+if test(?d, repo_dir)
+  ENV['SVN_TEST_REPO'] = repo_dir
+else
+  puts "Create repo: #{repo_dir}"
+  Svn::Repo.create(repo_dir)
+end
+
+puts Svn::CountedString.from_string("What!!!").inspect
 
 test_repo_dir = ENV['SVN_TEST_REPO'] || raise("Need to set env: SVN_TEST_REPO")
 repo = Svn::Repo.open(test_repo_dir)
@@ -21,9 +29,21 @@ file = "/trunk/DocumentLibrary/Wiki/test.txt"
 puts "\n== #{file} =="
 # puts "Props: " + r.props_for(file).inspect
 puts "Content:"
-# puts file_content = r.file_content(file).read
 
-100.times {
+if r.check_path(file) == 0
+  tx_root = repo.youngest.transaction_root
+  puts "Need to create file"
+  tx_root.make_file(file)
+  tx_root.author = "CandatenA"
+  tx_root.log =  "Added #{File.basename(file)}"
+  puts tx_root.commit.inspect
+end
+
+
+puts r.check_path(file).inspect
+puts file_content = r.file_content(file).read
+
+10.times {
   tx_root = repo.youngest.transaction_root
   # #  Add file
   # puts "check_path: " + r.check_path("/test").inspect

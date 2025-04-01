@@ -122,7 +122,7 @@ module Svn
 
       attach_function :clear,
           :svn_error_clear,
-          [ :error ],
+          [ :pointer ],
           :void
     end
 

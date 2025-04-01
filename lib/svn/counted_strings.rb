@@ -4,7 +4,7 @@ require 'ffi'
 module Svn #:nodoc:
 
   # a struct for interacting with svn_string_t values
-  class CountedStringStruct < FFI::Struct
+  class CountedString < FFI::Struct
 
     layout(
         # because the data may not be NULL-terminated, treat it as a pointer
@@ -23,17 +23,34 @@ module Svn #:nodoc:
       to_s.inspect
     end
 
+    def self.from_string( content)
+      return content if content.is_a? CountedString
+      cstr = CountedString.new
+      cstr[:data] = FFI::MemoryPointer.from_string( content )
+      cstr[:length] = content.size
+      cstr
+    end
+
   end
 
   # the svn_string_t pointer type, which is the one used externally
-  CountedString = CountedStringStruct.by_ref
+  # class CountedString < CountedStringStruct.by_ref
+  # end
 
-  def CountedString.from_string( content )
-    return content if content.is_a? CountedStringStruct
-    cstr = CountedStringStruct.new
-    cstr[:data] = FFI::MemoryPointer.from_string( content )
-    cstr[:length] = content.size
-    cstr
-  end
+  # CountedString.define_singleton_method(:from_string) do |content|
+  #   return content if content.is_a? CountedStringStruct
+  #   cstr = CountedStringStruct.new
+  #   cstr[:data] = FFI::MemoryPointer.from_string( content )
+  #   cstr[:length] = content.size
+  #   cstr
+  # end
+
+  # def CountedString.from_string( content )
+  #   return content if content.is_a? CountedStringStruct
+  #   cstr = CountedStringStruct.new
+  #   cstr[:data] = FFI::MemoryPointer.from_string( content )
+  #   cstr[:length] = content.size
+  #   cstr
+  # end
 
 end
