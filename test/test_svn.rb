@@ -6,7 +6,7 @@
 $LOAD_PATH << File.expand_path(File.dirname(__FILE__) + "/../lib")
 %w{svn}.each {|l| require l} #Load libraries
 
-repo = Svn::Repo.open('/home/contaxc/repos/qvasdoc')
+repo = Svn::Repo.open('/home/contaxc/repos.svn/qvasdoc')
 
 # puts repo.public_methods.sort
 
@@ -24,10 +24,16 @@ puts "revision #{r.to_i}, by #{r.author} (on #{r.timestamp.strftime('%Y-%m-%d %H
 
 #File.open("ManualsRegister.doc", "wb") {|fd| fd.write r.file_content_stream("/trunk/DocumentLibrary/Manuals/ManualsRegister.doc").to_counted_string }
 #File.open("ManualsRegister.doc", "wb") {|fd| fd.write r.file_content_stream("/trunk/DocumentLibrary/Manuals/ManualsRegister.doc").to_s }
-# File.open("ManualsRegister.doc", "wb") {|fd| fd.write r.file_content("/trunk/DocumentLibrary/Manuals/ManualsRegister.doc").read }
+File.open("ManualsRegister.doc", "wb") {|fd| fd.write r.file_content("/trunk/DocumentLibrary/Manuals/ManualsRegister.doc").read }
 
 puts "\n== HISTORY =="
 repo.history("/trunk/DocumentLibrary/Manuals/ManualsRegister.doc").each{|h| puts h.inspect}
+
+puts "\n== HISTORY with options =="
+tm = Time.now
+repo.history("/trunk/DocumentLibrary/Manuals/ManualsRegister.doc", limit: 1, end_rev: 0, start_rev: repo.youngest).each{|h| puts h.inspect}
+tm = Time.now - tm
+puts "timing: %.5f" % tm
 
 puts "\n== PROPERTIES =="
 puts r.props_for("/trunk/DocumentLibrary/Manuals/ManualsRegister.doc").inspect
@@ -45,6 +51,8 @@ puts r.props_for("/trunk/DocumentLibrary/Manuals/ManualsRegister.doc").inspect
 # # puts "svn:log=" + tx_root.txn_prop( "svn:log").to_s
 
 # puts tx_root.commit.inspect
+
+# puts `sleep 1; pfiles #{$$}`
 
 
 

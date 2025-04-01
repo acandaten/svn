@@ -105,7 +105,7 @@ module Svn
           :error
       attach_function :write,
           :svn_stream_write,
-          [ :stream, :content, :in_out_len ],
+          [ :stream, :pointer, :in_out_len ],
           :error
     end
 
@@ -130,9 +130,9 @@ module Svn
     def write(buf)
       buf = buf.to_s
       in_out_len = FFI::MemoryPointer.new( :size_t )
-      in_out_len.write_ulong( buf.size )
+      in_out_len.write_ulong( buf.bytesize )
       Error.check_and_raise(
-          C.write( self, buf, in_out_len )
+          C.write( self, FFI::MemoryPointer.from_string(buf), in_out_len )
       )
     end
 
@@ -159,7 +159,8 @@ module Svn
     # way to do this, by allocating a big string and re-allocing when the size
     # required overruns that memory
     def to_counted_string
-      CountedString.from_string( read_all )
+      a = CountedString.from_string( read_all )
+      a
     end
 
     # reads the stream contents into a StringIO object
@@ -168,6 +169,7 @@ module Svn
       while bytes = read and !bytes.empty?
         content.write( bytes )
       end
+      # close
       content.rewind
       content
     end

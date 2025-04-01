@@ -133,16 +133,22 @@ module Svn #:nodoc:
     end
 
     def make_dir(path)
-      case revision.check_path(path)
+      check_flag = revision.check_path(path)
+      # puts "make_dir: #{path} flag =  #{check_flag}"
+      case check_flag
         when 2 then return
         when 1 then raise "Cannot make dir '%f' as it is a file" % path
         when 3 then raise "Known object '%s'" % path
       end
       make_dir(File.dirname(path))
 
-      Error.check_and_raise(
-        C.make_dir(@transaction_root.read_pointer, path, revision.pool)
-      )
+      begin
+        Error.check_and_raise(
+          C.make_dir(@transaction_root.read_pointer, path, revision.pool)
+        )
+      rescue
+        # ignore
+      end
     end
 
     def change_txn_prop(propname, value)
